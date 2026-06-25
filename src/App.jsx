@@ -37,7 +37,9 @@ import {
   Calendar,
   BarChart,
   Pencil,
-  RotateCcw
+  RotateCcw,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 // --- DATA TETAP (DEFAULT) ---
@@ -81,7 +83,7 @@ const NAMA_BULAN = {
 
 export default function App() {
   // --- STATE UTAMA ---
-  const [activeTab, setActiveTab] = useState('borang');
+  const [activeTab, setActiveTab] = useState('borang'); // Default sentiasa borang
 
   const [logs, setLogs] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -97,8 +99,10 @@ export default function App() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  // State Sekuriti (Admin)
+  // --- STATE SEKURITI & MODAL LOGIN (ADMIN) ---
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
 
@@ -261,7 +265,15 @@ export default function App() {
     window.print();
   };
 
-  // --- FUNGSI PENGENDALIAN ADMIN ---
+  // --- FUNGSI PENGENDALIAN ADMIN (LOGIN MODAL) ---
+  const handleAdminClick = () => {
+    if (isAdminLoggedIn) {
+      setActiveTab('laporan');
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
@@ -274,6 +286,8 @@ export default function App() {
       setIsAdminLoggedIn(true);
       setLoginError('');
       setLoginData({ username: '', password: '' });
+      setShowLoginModal(false);
+      setActiveTab('laporan'); // Terus masuk dashboard lepas berjaya login
     } else {
       setLoginError('ID Pengguna atau Kata Laluan tidak sah.');
     }
@@ -281,6 +295,7 @@ export default function App() {
 
   const handleLogout = () => {
     setIsAdminLoggedIn(false);
+    setActiveTab('borang'); // Kembali ke borang lepas logout
   };
 
   // --- FUNGSI TAMBAH CEPAT DARI BORANG (HANYA UNTUK ADMIN) ---
@@ -570,15 +585,10 @@ export default function App() {
               border-collapse: collapse; 
               margin-top: 10px; 
               font-size: 11px; 
-              page-break-inside: auto; /* Membenarkan jadual masuk ke page baru */
+              page-break-inside: auto; 
             }
-            thead { 
-              display: table-header-group; /* Ulang header jadual pada page baru */
-            }
-            tr { 
-              page-break-inside: avoid; /* Halang baris dari terpotong separuh */
-              page-break-after: auto; 
-            }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
             th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: left; }
             th { background-color: #4A154B !important; color: white !important; font-weight: bold; text-align: center; }
             tr:nth-child(even) { background-color: #f9f9f9 !important; }
@@ -646,7 +656,7 @@ export default function App() {
                 <FileText className="w-4 h-4" /> Borang
               </button>
               <button 
-                onClick={() => setActiveTab('laporan')}
+                onClick={handleAdminClick}
                 className={`relative z-10 w-[150px] py-2 rounded-xl text-sm font-bold transition-colors duration-300 flex items-center justify-center gap-2 ${
                   activeTab === 'laporan' ? 'text-white' : (darkMode ? 'text-slate-400 hover:text-white' : 'text-white/60 hover:text-white')
                 }`}
@@ -910,731 +920,650 @@ export default function App() {
             </div>
           )}
 
-          {/* ===== LAPORAN ADMIN ===== */}
-          {activeTab === 'laporan' && (
-            <div>
-              {!isAdminLoggedIn ? (
-                <div className={`max-w-md mx-auto mt-6 p-8 rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border text-center space-y-6 ${
-                  darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
-                }`}>
-                  <div className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center shadow-inner ${
-                    darkMode ? 'bg-slate-700 border-slate-600' : 'bg-[#4A154B]/5 border border-[#4A154B]/10'
-                  }`}>
-                    <ShieldCheck className={`w-10 h-10 ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`} />
-                  </div>
-                  <div>
-                    <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                      Akses V-Log@USM
-                    </h2>
-                    <p className={`text-sm font-medium mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                      Log masuk pentadbir sistem.
-                    </p>
-                  </div>
-                  <form onSubmit={handleLoginSubmit} className="space-y-5 text-left">
-                    {loginError && (
-                      <div className={`text-[11px] font-bold p-3 rounded-lg border text-center ${
-                        darkMode ? 'bg-red-900/30 text-red-300 border-red-700' : 'bg-red-50 text-red-600 border-red-100'
-                      }`}>
-                        {loginError}
-                      </div>
-                    )}
-                    <div className="space-y-1.5">
-                      <label className={`text-[12px] font-semibold ml-1 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                        ID Pengguna
-                      </label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                          <UserCircle2 className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
-                        </div>
-                        <input 
-                          type="text" 
-                          name="username" 
-                          value={loginData.username} 
-                          onChange={handleLoginChange} 
-                          required 
-                          placeholder="Masukkan ID" 
-                          className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-[14px] shadow-sm transition-all ${
-                            darkMode 
-                              ? 'bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-[#f39200]' 
-                              : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className={`text-[12px] font-semibold ml-1 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                        Kata Laluan
-                      </label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                          <KeyRound className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
-                        </div>
-                        <input 
-                          type="password" 
-                          name="password" 
-                          value={loginData.password} 
-                          onChange={handleLoginChange} 
-                          required 
-                          placeholder="••••••••" 
-                          className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-[14px] shadow-sm transition-all ${
-                            darkMode 
-                              ? 'bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-[#f39200]' 
-                              : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                    <button type="submit" className="w-full bg-[#f39200] text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 mt-4 text-[14px] hover:bg-[#e08600]">
-                      Log Masuk <ChevronRight className="w-4 h-4"/>
-                    </button>
-                  </form>
+          {/* ===== LAPORAN ADMIN (Hanya dipaparkan jika log masuk berjaya) ===== */}
+          {activeTab === 'laporan' && isAdminLoggedIn && (
+            <div className="space-y-6">
+              
+              <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl shadow-sm border ${
+                darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+              }`}>
+                <div>
+                  <h2 className={`text-lg font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                    <Building2 className="w-5 h-5 text-[#f39200]" /> Papan Pemuka V-Log@USM
+                  </h2>
+                  <p className={`text-sm mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Urus rekod, statistik, dan jana laporan PDF rasmi.
+                  </p>
                 </div>
-              ) : (
-                /* --- PAPAN PEMUKA ADMIN --- */
-                <div className="space-y-6">
-                  
-                  <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl shadow-sm border ${
-                    darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <button onClick={cetakPDF} disabled={filteredLogs.length === 0} className="flex-1 sm:flex-none bg-[#f39200] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95 transition-all shadow-md hover:bg-[#e08600]">
+                    <Download className="w-4 h-4" /> Eksport PDF
+                  </button>
+                  <button onClick={handleLogout} className={`p-2.5 rounded-xl transition-colors shadow-sm ${
+                    darkMode ? 'bg-slate-700 text-slate-300 hover:bg-red-900/30 hover:text-red-400' : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600'
                   }`}>
-                    <div>
-                      <h2 className={`text-lg font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                        <Building2 className="w-5 h-5 text-[#f39200]" /> Papan Pemuka V-Log@USM
-                      </h2>
-                      <p className={`text-sm mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                        Urus rekod, statistik, dan jana laporan PDF rasmi.
-                      </p>
-                    </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <button onClick={cetakPDF} disabled={filteredLogs.length === 0} className="flex-1 sm:flex-none bg-[#f39200] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95 transition-all shadow-md hover:bg-[#e08600]">
-                        <Download className="w-4 h-4" /> Eksport PDF
-                      </button>
-                      <button onClick={handleLogout} className={`p-2.5 rounded-xl transition-colors shadow-sm ${
-                        darkMode ? 'bg-slate-700 text-slate-300 hover:bg-red-900/30 hover:text-red-400' : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600'
-                      }`}>
-                        <LogOut className="w-5 h-5" />
-                      </button>
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* --- KAD STATISTIK KORPORAT --- */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
+                  darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-100'
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                      darkMode ? 'text-slate-400' : 'text-indigo-700'
+                    }`}>Jumlah Perjalanan</p>
+                    <div className={`p-2.5 rounded-xl ${
+                      darkMode ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-600'
+                    }`}>
+                      <Activity className="w-5 h-5" />
                     </div>
                   </div>
+                  <h3 className={`text-4xl font-black mt-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                    {stats.totalTrips}
+                  </h3>
+                  <TrendingUp className={`absolute -right-6 -bottom-6 w-28 h-28 opacity-10 pointer-events-none ${
+                    darkMode ? 'text-white' : 'text-indigo-600'
+                  }`} />
+                </div>
 
-                  {/* --- KAD STATISTIK KORPORAT --- */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
-                      darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-100'
+                <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
+                  darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-100'
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                      darkMode ? 'text-slate-400' : 'text-emerald-700'
+                    }`}>Jumlah (KM)</p>
+                    <div className={`p-2.5 rounded-xl ${
+                      darkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-600'
                     }`}>
-                      <div className="flex justify-between items-start">
-                        <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                          darkMode ? 'text-slate-400' : 'text-indigo-700'
-                        }`}>Jumlah Perjalanan</p>
-                        <div className={`p-2.5 rounded-xl ${
-                          darkMode ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-600'
-                        }`}>
-                          <Activity className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <h3 className={`text-4xl font-black mt-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                        {stats.totalTrips}
-                      </h3>
-                      <TrendingUp className={`absolute -right-6 -bottom-6 w-28 h-28 opacity-10 pointer-events-none ${
-                        darkMode ? 'text-white' : 'text-indigo-600'
-                      }`} />
-                    </div>
-
-                    <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
-                      darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-100'
-                    }`}>
-                      <div className="flex justify-between items-start">
-                        <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                          darkMode ? 'text-slate-400' : 'text-emerald-700'
-                        }`}>Jumlah (KM)</p>
-                        <div className={`p-2.5 rounded-xl ${
-                          darkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-600'
-                        }`}>
-                          <Gauge className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <h3 className={`text-4xl font-black mt-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                        {stats.totalKM} <span className="text-sm font-bold text-slate-400">KM</span>
-                      </h3>
-                    </div>
-
-                    <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
-                      darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-100'
-                    }`}>
-                      <div className="flex justify-between items-start">
-                        <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                          darkMode ? 'text-slate-400' : 'text-amber-700'
-                        }`}>Pemandu Aktif</p>
-                        <div className={`p-2.5 rounded-xl ${
-                          darkMode ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-100 text-amber-600'
-                        }`}>
-                          <Users className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <h3 className={`text-2xl font-bold mt-3 leading-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                        {stats.topPemandu.split(' ').slice(0, 3).join(' ')}
-                      </h3>
-                      <Award className={`absolute -right-6 -bottom-6 w-28 h-28 opacity-10 pointer-events-none ${
-                        darkMode ? 'text-white' : 'text-amber-600'
-                      }`} />
-                    </div>
-
-                    <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
-                      darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-100'
-                    }`}>
-                      <div className="flex justify-between items-start">
-                        <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                          darkMode ? 'text-slate-400' : 'text-rose-700'
-                        }`}>Kenderaan Kerap</p>
-                        <div className={`p-2.5 rounded-xl ${
-                          darkMode ? 'bg-rose-500/20 text-rose-300' : 'bg-rose-100 text-rose-600'
-                        }`}>
-                          <Truck className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <h3 className={`text-lg font-bold mt-3 leading-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                        {stats.topKenderaan.split(' ').slice(0, 3).join(' ')}
-                      </h3>
+                      <Gauge className="w-5 h-5" />
                     </div>
                   </div>
+                  <h3 className={`text-4xl font-black mt-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                    {stats.totalKM} <span className="text-sm font-bold text-slate-400">KM</span>
+                  </h3>
+                </div>
 
-                  {/* --- PANEL URUS DATA INDUK (ADMIN) --- */}
-                  <div className={`p-5 rounded-2xl shadow-sm border ${
-                    darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
-                  }`}>
-                    <h3 className={`text-sm font-bold flex items-center gap-2 ${
-                      darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
+                <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
+                  darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-100'
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                      darkMode ? 'text-slate-400' : 'text-amber-700'
+                    }`}>Pemandu Aktif</p>
+                    <div className={`p-2.5 rounded-xl ${
+                      darkMode ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-100 text-amber-600'
                     }`}>
-                      <Users className="w-4 h-4" /> Urus Data Induk (Pemandu & Kenderaan)
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                      {/* Bahagian Pemandu */}
-                      <div className="space-y-2">
-                        <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                          Senarai Pemandu
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={newDriverAdmin}
-                            onChange={(e) => setNewDriverAdmin(e.target.value)}
-                            placeholder="Nama pemandu..."
-                            className={`flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
-                              darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
-                            }`}
-                          />
-                          <button
-                            onClick={handleAddDriverAdmin}
-                            className="px-4 py-2 bg-[#4A154B] text-white rounded-xl text-sm font-bold hover:bg-[#3a0f3b] active:scale-95 transition-all"
-                          >
-                            Tambah
-                          </button>
-                        </div>
-                        <div className={`flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl border ${
-                          darkMode ? 'bg-slate-700/30 border-slate-600' : 'bg-slate-50 border-slate-200'
-                        }`}>
-                          {drivers.map(d => (
-                            <span key={d} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm border ${
-                              darkMode ? 'bg-slate-600 border-slate-500 text-slate-200' : 'bg-white border-slate-200'
-                            }`}>
-                              {d}
-                              <button onClick={() => handleRemoveDriverAdmin(d)} className="text-red-400 hover:text-red-600 transition-colors">
-                                <X className="w-3 h-3" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      {/* Bahagian Kenderaan */}
-                      <div className="space-y-2">
-                        <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                          Senarai Kenderaan
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={newVehicleAdmin}
-                            onChange={(e) => setNewVehicleAdmin(e.target.value)}
-                            placeholder="Contoh: Toyota Camry (ABC 1234)"
-                            className={`flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
-                              darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
-                            }`}
-                          />
-                          <button
-                            onClick={handleAddVehicleAdmin}
-                            className="px-4 py-2 bg-[#f39200] text-white rounded-xl text-sm font-bold hover:bg-[#e08600] active:scale-95 transition-all"
-                          >
-                            Tambah
-                          </button>
-                        </div>
-                        <div className={`flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl border ${
-                          darkMode ? 'bg-slate-700/30 border-slate-600' : 'bg-slate-50 border-slate-200'
-                        }`}>
-                          {vehicles.map(v => (
-                            <span key={v} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm border ${
-                              darkMode ? 'bg-slate-600 border-slate-500 text-slate-200' : 'bg-white border-slate-200'
-                            }`}>
-                              {v}
-                              <button onClick={() => handleRemoveVehicleAdmin(v)} className="text-red-400 hover:text-red-600 transition-colors">
-                                <X className="w-3 h-3" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                      <Users className="w-5 h-5" />
                     </div>
                   </div>
+                  <h3 className={`text-2xl font-bold mt-3 leading-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                    {stats.topPemandu.split(' ').slice(0, 3).join(' ')}
+                  </h3>
+                  <Award className={`absolute -right-6 -bottom-6 w-28 h-28 opacity-10 pointer-events-none ${
+                    darkMode ? 'text-white' : 'text-amber-600'
+                  }`} />
+                </div>
 
-                  {/* --- STATISTIK BULANAN --- */}
-                  <div className={`p-5 rounded-2xl shadow-sm border ${
-                    darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
-                  }`}>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-                      <h3 className={`text-sm font-bold flex items-center gap-2 ${
-                        darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
-                      }`}>
-                        <BarChart3 className="w-4 h-4" /> Statistik Penggunaan Mengikut Bulan
-                      </h3>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                            Tahun:
-                          </label>
-                          <select
-                            value={statsTahun}
-                            onChange={(e) => setStatsTahun(e.target.value)}
-                            className={`px-3 py-1.5 border rounded-lg text-sm font-semibold focus:ring-2 focus:ring-[#f39200] outline-none ${
-                              darkMode 
-                                ? 'bg-slate-700 border-slate-600 text-slate-100' 
-                                : 'bg-white border-slate-200 text-slate-800'
-                            }`}
-                          >
-                            {[2023, 2024, 2025, 2026, 2027].map(t => (
-                              <option key={t} value={t.toString()}>{t}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                            Kenderaan:
-                          </label>
-                          <select
-                            value={statsKenderaanFilter}
-                            onChange={(e) => setStatsKenderaanFilter(e.target.value)}
-                            className={`px-3 py-1.5 border rounded-lg text-sm font-semibold focus:ring-2 focus:ring-[#f39200] outline-none ${
-                              darkMode 
-                                ? 'bg-slate-700 border-slate-600 text-slate-100' 
-                                : 'bg-white border-slate-200 text-slate-800'
-                            }`}
-                          >
-                            <option value="Semua">Semua</option>
-                            {vehicles.map(v => <option key={v} value={v}>{v}</option>)}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {Object.keys(monthlyStats).map((bulan) => {
-                        const data = monthlyStats[bulan];
-                        const nama = NAMA_BULAN[bulan] || bulan;
-                        const maxKM = Math.max(...Object.values(monthlyStats).map(m => m.km), 0.1);
-                        const percent = maxKM > 0 ? (data.km / maxKM) * 100 : 0;
-                        const isActive = data.trips > 0 || data.km > 0;
-                        const colorClass = isActive 
-                          ? darkMode 
-                            ? `bg-gradient-to-br from-amber-500/30 to-amber-600/20 border-amber-500/30`
-                            : `bg-gradient-to-br from-amber-50 to-amber-100/60 border-amber-200`
-                          : darkMode
-                            ? 'bg-slate-700/30 border-slate-600/50'
-                            : 'bg-slate-50/50 border-slate-200/50';
-                        const textColor = isActive
-                          ? darkMode ? 'text-amber-300' : 'text-amber-700'
-                          : darkMode ? 'text-slate-500' : 'text-slate-400';
-
-                        return (
-                          <div
-                            key={bulan}
-                            className={`p-3 rounded-xl border transition-all duration-200 hover:shadow-md ${
-                              isActive ? 'hover:scale-[1.02]' : 'opacity-60'
-                            } ${colorClass}`}
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <span className={`text-sm font-bold ${isActive ? darkMode ? 'text-white' : 'text-slate-800' : darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                                {nama}
-                              </span>
-                              <span className={`text-xs font-bold ${textColor}`}>
-                                {data.km.toFixed(1)} km
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs font-bold ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                                {data.trips} trip{data.trips !== 1 ? 's' : ''}
-                              </span>
-                              <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-700 ${
-                                    isActive ? 'bg-[#f39200]' : 'bg-slate-300 dark:bg-slate-500'
-                                  }`}
-                                  style={{ width: `${Math.max(percent, 2)}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                      <div className={`p-4 rounded-xl border flex items-center justify-between ${
-                        darkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-indigo-50/80 border-indigo-100'
-                      }`}>
-                        <div>
-                          <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                            darkMode ? 'text-slate-400' : 'text-indigo-600'
-                          }`}>Jumlah Perjalanan</p>
-                          <p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {totalYearStats.totalTrips}
-                          </p>
-                        </div>
-                        <div className={`p-3 rounded-xl ${darkMode ? 'bg-slate-600' : 'bg-indigo-100'}`}>
-                          <Calendar className={`w-5 h-5 ${darkMode ? 'text-indigo-300' : 'text-indigo-600'}`} />
-                        </div>
-                      </div>
-                      <div className={`p-4 rounded-xl border flex items-center justify-between ${
-                        darkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-emerald-50/80 border-emerald-100'
-                      }`}>
-                        <div>
-                          <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                            darkMode ? 'text-slate-400' : 'text-emerald-600'
-                          }`}>Jumlah Jarak</p>
-                          <p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {totalYearStats.totalKM.toFixed(1)} <span className="text-sm font-bold text-slate-400">KM</span>
-                          </p>
-                        </div>
-                        <div className={`p-3 rounded-xl ${darkMode ? 'bg-slate-600' : 'bg-emerald-100'}`}>
-                          <Gauge className={`w-5 h-5 ${darkMode ? 'text-emerald-300' : 'text-emerald-600'}`} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* --- STATISTIK MENGIKUT KENDERAAN --- */}
-                  <div className={`p-5 rounded-2xl shadow-sm border ${
-                    darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
-                  }`}>
-                    <h3 className={`text-sm font-bold flex items-center gap-2 mb-4 ${
-                      darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
+                <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
+                  darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-100'
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                      darkMode ? 'text-slate-400' : 'text-rose-700'
+                    }`}>Kenderaan Kerap</p>
+                    <div className={`p-2.5 rounded-xl ${
+                      darkMode ? 'bg-rose-500/20 text-rose-300' : 'bg-rose-100 text-rose-600'
                     }`}>
-                      <Truck className="w-4 h-4" /> Statistik Mengikut Kenderaan (Tahun {statsTahun})
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                       {Object.keys(vehicleStats).map((v) => {
-                        const data = vehicleStats[v];
-                        const isActive = data.trips > 0 || data.km > 0;
-                        const maxKM = Math.max(...Object.values(vehicleStats).map(d => d.km), 0.1);
-                        const percent = maxKM > 0 ? (data.km / maxKM) * 100 : 0;
-
-                        return (
-                          <div
-                            key={v}
-                            className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${
-                              isActive
-                                ? darkMode
-                                  ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30'
-                                  : 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200'
-                                : darkMode
-                                  ? 'bg-slate-700/30 border-slate-600/50 opacity-60'
-                                  : 'bg-slate-50/50 border-slate-200/50 opacity-60'
-                            }`}
-                          >
-                            <div className="flex justify-between items-start">
-                              <span className={`text-sm font-bold ${isActive ? (darkMode ? 'text-white' : 'text-slate-800') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>
-                                {v.split('(')[0].trim()}
-                              </span>
-                              <span className={`text-xs font-bold ${isActive ? (darkMode ? 'text-blue-300' : 'text-blue-600') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>
-                                {data.km.toFixed(1)} km
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className={`text-xs font-bold ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                                {data.trips} trip{data.trips !== 1 ? 's' : ''}
-                              </span>
-                              <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-700 ${
-                                    isActive ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-500'
-                                  }`}
-                                  style={{ width: `${Math.max(percent, 2)}%` }}
-                                />
-                              </div>
-                            </div>
-                            <p className={`text-[10px] font-medium mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                              {v}
-                            </p>
-                          </div>
-                        );
-                      })}
+                      <Truck className="w-5 h-5" />
                     </div>
                   </div>
+                  <h3 className={`text-lg font-bold mt-3 leading-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                    {stats.topKenderaan.split(' ').slice(0, 3).join(' ')}
+                  </h3>
+                </div>
+              </div>
 
-                  {/* --- PENAPIS & CARIAN LENGKAP DENGAN BUTANG RESET --- */}
-                  <div className={`p-5 rounded-2xl shadow-sm border space-y-4 ${
-                    darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
-                  }`}>
-                    <div className={`flex items-center justify-between mb-2 ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
-                      <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4" />
-                        <h3 className={`text-sm font-bold ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
-                          Tapisan & Carian Sistem
-                        </h3>
-                      </div>
-                      <button
-                        onClick={resetFilters}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          darkMode 
-                            ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' 
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" /> Reset
-                      </button>
-                    </div>
-                    
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className={`w-5 h-5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
-                      </div>
-                      <input 
-                        type="text" 
-                        value={searchQuery} 
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Cari nama pemandu, tarikh, kenderaan, atau destinasi..."
-                        className={`w-full pl-11 pr-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[14px] shadow-sm transition-all ${
-                          darkMode 
-                            ? 'bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-[#f39200]' 
-                            : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
+              {/* --- PANEL URUS DATA INDUK (ADMIN) --- */}
+              <div className={`p-5 rounded-2xl shadow-sm border ${
+                darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+              }`}>
+                <h3 className={`text-sm font-bold flex items-center gap-2 ${
+                  darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
+                }`}>
+                  <Users className="w-4 h-4" /> Urus Data Induk (Pemandu & Kenderaan)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  {/* Bahagian Pemandu */}
+                  <div className="space-y-2">
+                    <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                      Senarai Pemandu
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newDriverAdmin}
+                        onChange={(e) => setNewDriverAdmin(e.target.value)}
+                        placeholder="Nama pemandu..."
+                        className={`flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
+                          darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
                         }`}
                       />
+                      <button
+                        onClick={handleAddDriverAdmin}
+                        className="px-4 py-2 bg-[#4A154B] text-white rounded-xl text-sm font-bold hover:bg-[#3a0f3b] active:scale-95 transition-all"
+                      >
+                        Tambah
+                      </button>
                     </div>
-
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                      <select 
-                        value={filterPemandu} 
-                        onChange={(e) => setFilterPemandu(e.target.value)} 
-                        className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
-                          darkMode 
-                            ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
-                            : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
-                        }`}
-                      >
-                        <option value="Semua">Semua Pemandu</option>
-                        {drivers.map(p => <option key={p} value={p}>{p}</option>)}
-                      </select>
-                      
-                      <select 
-                        value={filterKenderaan} 
-                        onChange={(e) => setFilterKenderaan(e.target.value)} 
-                        className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
-                          darkMode 
-                            ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
-                            : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
-                        }`}
-                      >
-                        <option value="Semua">Semua Kenderaan</option>
-                        {vehicles.map(k => <option key={k} value={k}>{k}</option>)}
-                      </select>
-
-                      <select 
-                        value={filterBulan} 
-                        onChange={(e) => setFilterBulan(e.target.value)} 
-                        className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
-                          darkMode 
-                            ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
-                            : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
-                        }`}
-                      >
-                        {BULAN.map(b => <option key={b.nilai} value={b.nilai}>{b.nama}</option>)}
-                      </select>
-
-                      <select 
-                        value={filterTahun} 
-                        onChange={(e) => setFilterTahun(e.target.value)} 
-                        className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
-                          darkMode 
-                            ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
-                            : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
-                        }`}
-                      >
-                        <option value="Semua">Semua Tahun</option>
-                        {[2023, 2024, 2025, 2026, 2027].map(t => <option key={t} value={t.toString()}>{t}</option>)}
-                      </select>
+                    <div className={`flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl border ${
+                      darkMode ? 'bg-slate-700/30 border-slate-600' : 'bg-slate-50 border-slate-200'
+                    }`}>
+                      {drivers.map(d => (
+                        <span key={d} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm border ${
+                          darkMode ? 'bg-slate-600 border-slate-500 text-slate-200' : 'bg-white border-slate-200'
+                        }`}>
+                          {d}
+                          <button onClick={() => handleRemoveDriverAdmin(d)} className="text-red-400 hover:text-red-600 transition-colors">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
                     </div>
                   </div>
-
-                  {/* --- SENARAI REKOD DENGAN BUTANG EDIT & DELETE --- */}
-                  <div className={`rounded-2xl shadow-sm border overflow-hidden ${
-                    darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
-                  }`}>
-                    <div className="overflow-x-auto hidden sm:block">
-                      <table className="w-full text-sm text-left">
-                        <thead className={`border-b ${
-                          darkMode ? 'bg-slate-700/50 border-slate-600 text-slate-300' : 'bg-[#4A154B]/5 text-slate-600 border-[#4A154B]/10'
-                        }`}>
-                          <tr>
-                            <th className="p-4 font-bold">Tarikh</th>
-                            <th className="p-4 font-bold">Masa</th>
-                            <th className="p-4 font-bold">Kenderaan</th>
-                            <th className="p-4 font-bold">Pemandu</th>
-                            <th className="p-4 font-bold">Destinasi</th>
-                            <th className="p-4 text-center font-bold">Jarak</th>
-                            <th className="p-4 text-center font-bold">Tindakan</th>
-                          </tr>
-                        </thead>
-                        <tbody className={`divide-y ${darkMode ? 'divide-slate-700' : 'divide-slate-100'}`}>
-                          {filteredLogs.map(log => (
-                             <tr key={log.id} className={`transition-colors ${
-                               darkMode ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50/50'
-                              }`}>
-                               <td className={`p-4 font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                                 {log.tarikh}
-                               </td>
-                               <td className={`p-4 font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                                 {log.masaMula} - {log.masaTamat}
-                               </td>
-                               <td className={`p-4 text-xs font-bold uppercase ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
-                                 {log.kenderaan.split(' ')[0]}
-                               </td>
-                               <td className={`p-4 font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                                 {log.pemandu}
-                               </td>
-                               <td className={`p-4 truncate max-w-[200px] ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                                 {log.tujuan}
-                               </td>
-                               <td className={`p-4 text-center font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                                 {log.jarak}
-                               </td>
-                               <td className="p-4 text-center">
-                                 <div className="flex items-center justify-center gap-1.5">
-                                   <button
-                                     onClick={() => openEditModal(log)}
-                                     className={`p-1.5 rounded-lg transition-all ${
-                                       darkMode 
-                                         ? 'hover:bg-slate-600 text-slate-400 hover:text-white' 
-                                         : 'hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800'
-                                     }`}
-                                     title="Edit rekod"
-                                   >
-                                     <Pencil className="w-4 h-4" />
-                                   </button>
-                                   <button
-                                     onClick={() => handleDeleteLog(log.id)}
-                                     className={`p-1.5 rounded-lg transition-all ${
-                                       darkMode 
-                                         ? 'hover:bg-red-900/30 text-red-400 hover:text-red-300' 
-                                         : 'hover:bg-red-50 text-red-500 hover:text-red-700'
-                                     }`}
-                                     title="Padam rekod"
-                                   >
-                                     <Trash2 className="w-4 h-4" />
-                                   </button>
-                                 </div>
-                               </td>
-                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  {/* Bahagian Kenderaan */}
+                  <div className="space-y-2">
+                    <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                      Senarai Kenderaan
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newVehicleAdmin}
+                        onChange={(e) => setNewVehicleAdmin(e.target.value)}
+                        placeholder="Contoh: Toyota Camry (ABC 1234)"
+                        className={`flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
+                          darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+                        }`}
+                      />
+                      <button
+                        onClick={handleAddVehicleAdmin}
+                        className="px-4 py-2 bg-[#f39200] text-white rounded-xl text-sm font-bold hover:bg-[#e08600] active:scale-95 transition-all"
+                      >
+                        Tambah
+                      </button>
                     </div>
-
-                    {/* Paparan Kad untuk Skrin Mudah Alih */}
-                    <div className="p-4 space-y-4 sm:hidden">
-                      {filteredLogs.length > 0 ? (
-                        filteredLogs.map((log) => (
-                          <div key={log.id} className={`p-5 rounded-2xl shadow-sm border flex flex-col gap-3 ${
-                            darkMode ? 'bg-slate-700 border-slate-600' : 'bg-white border-slate-200'
-                          }`}>
-                            <div className={`flex justify-between items-start border-b pb-3 ${
-                              darkMode ? 'border-slate-600' : 'border-slate-100'
-                            }`}>
-                              <div>
-                                <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md mb-2 inline-block border ${
-                                  darkMode ? 'bg-slate-600 text-[#f39200] border-slate-500' : 'bg-purple-50 text-[#4A154B] border-[#4A154B]/10'
-                                }`}>
-                                  {log.kenderaan.split(' ')[0]}
-                                </span>
-                                <h3 className={`font-bold text-[15px] ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                                  {log.tarikh}
-                                </h3>
-                                <p className={`text-[12px] font-semibold flex items-center gap-1.5 mt-1 ${
-                                  darkMode ? 'text-slate-400' : 'text-slate-500'
-                                }`}>
-                                  <Clock className="w-3 h-3" /> {log.masaMula} - {log.masaTamat}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <span className={`block text-xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                                  {log.jarak}
-                                </span>
-                                <span className="text-[9px] font-bold uppercase tracking-widest block -mt-0.5 text-slate-400">
-                                  KM
-                                </span>
-                              </div>
-                            </div>
-                            <div className="pt-1">
-                              <p className={`text-[13px] font-semibold flex items-center gap-2 mb-1 ${
-                                darkMode ? 'text-slate-300' : 'text-slate-700'
-                              }`}>
-                                <UserCircle2 className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} /> 
-                                {log.pemandu}
-                              </p>
-                              <p className={`text-[13px] flex items-start gap-2 leading-snug ${
-                                darkMode ? 'text-slate-400' : 'text-slate-600'
-                              }`}>
-                                <MapPin className={`w-4 h-4 shrink-0 mt-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} /> 
-                                <span className="line-clamp-2">{log.tujuan}</span>
-                              </p>
-                            </div>
-                            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-600">
-                              <button
-                                onClick={() => openEditModal(log)}
-                                className={`p-2 rounded-lg transition-all ${
-                                  darkMode 
-                                    ? 'bg-slate-600 text-slate-300 hover:bg-slate-500' 
-                                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
-                                }`}
-                                title="Edit rekod"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteLog(log.id)}
-                                className={`p-2 rounded-lg transition-all ${
-                                  darkMode 
-                                    ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' 
-                                    : 'bg-red-50 text-red-500 hover:bg-red-100'
-                                }`}
-                                title="Padam rekod"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-10 text-center flex flex-col items-center justify-center">
-                          <div className={`p-4 rounded-full mb-3 shadow-sm border ${
-                            darkMode ? 'bg-slate-700 text-slate-400 border-slate-600' : 'bg-white text-slate-400 border-slate-100'
-                          }`}>
-                            <History className="w-8 h-8" />
-                          </div>
-                          <p className={`font-semibold text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                            Tiada rekod dijumpai<br/>untuk tapisan ini.
-                          </p>
-                        </div>
-                      )}
+                    <div className={`flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl border ${
+                      darkMode ? 'bg-slate-700/30 border-slate-600' : 'bg-slate-50 border-slate-200'
+                    }`}>
+                      {vehicles.map(v => (
+                        <span key={v} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm border ${
+                          darkMode ? 'bg-slate-600 border-slate-500 text-slate-200' : 'bg-white border-slate-200'
+                        }`}>
+                          {v}
+                          <button onClick={() => handleRemoveVehicleAdmin(v)} className="text-red-400 hover:text-red-600 transition-colors">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* --- STATISTIK BULANAN --- */}
+              <div className={`p-5 rounded-2xl shadow-sm border ${
+                darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+              }`}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                  <h3 className={`text-sm font-bold flex items-center gap-2 ${
+                    darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
+                  }`}>
+                    <BarChart3 className="w-4 h-4" /> Statistik Penggunaan Mengikut Bulan
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                        Tahun:
+                      </label>
+                      <select
+                        value={statsTahun}
+                        onChange={(e) => setStatsTahun(e.target.value)}
+                        className={`px-3 py-1.5 border rounded-lg text-sm font-semibold focus:ring-2 focus:ring-[#f39200] outline-none ${
+                          darkMode 
+                            ? 'bg-slate-700 border-slate-600 text-slate-100' 
+                            : 'bg-white border-slate-200 text-slate-800'
+                        }`}
+                      >
+                        {[2023, 2024, 2025, 2026, 2027].map(t => (
+                          <option key={t} value={t.toString()}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                        Kenderaan:
+                      </label>
+                      <select
+                        value={statsKenderaanFilter}
+                        onChange={(e) => setStatsKenderaanFilter(e.target.value)}
+                        className={`px-3 py-1.5 border rounded-lg text-sm font-semibold focus:ring-2 focus:ring-[#f39200] outline-none ${
+                          darkMode 
+                            ? 'bg-slate-700 border-slate-600 text-slate-100' 
+                            : 'bg-white border-slate-200 text-slate-800'
+                        }`}
+                      >
+                        <option value="Semua">Semua</option>
+                        {vehicles.map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {Object.keys(monthlyStats).map((bulan) => {
+                    const data = monthlyStats[bulan];
+                    const nama = NAMA_BULAN[bulan] || bulan;
+                    const maxKM = Math.max(...Object.values(monthlyStats).map(m => m.km), 0.1);
+                    const percent = maxKM > 0 ? (data.km / maxKM) * 100 : 0;
+                    const isActive = data.trips > 0 || data.km > 0;
+                    const colorClass = isActive 
+                      ? darkMode 
+                        ? `bg-gradient-to-br from-amber-500/30 to-amber-600/20 border-amber-500/30`
+                        : `bg-gradient-to-br from-amber-50 to-amber-100/60 border-amber-200`
+                      : darkMode
+                        ? 'bg-slate-700/30 border-slate-600/50'
+                        : 'bg-slate-50/50 border-slate-200/50';
+                    const textColor = isActive
+                      ? darkMode ? 'text-amber-300' : 'text-amber-700'
+                      : darkMode ? 'text-slate-500' : 'text-slate-400';
+
+                    return (
+                      <div
+                        key={bulan}
+                        className={`p-3 rounded-xl border transition-all duration-200 hover:shadow-md ${
+                          isActive ? 'hover:scale-[1.02]' : 'opacity-60'
+                        } ${colorClass}`}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <span className={`text-sm font-bold ${isActive ? darkMode ? 'text-white' : 'text-slate-800' : darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                            {nama}
+                          </span>
+                          <span className={`text-xs font-bold ${textColor}`}>
+                            {data.km.toFixed(1)} km
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-bold ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                            {data.trips} trip{data.trips !== 1 ? 's' : ''}
+                          </span>
+                          <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-700 ${
+                                isActive ? 'bg-[#f39200]' : 'bg-slate-300 dark:bg-slate-500'
+                              }`}
+                              style={{ width: `${Math.max(percent, 2)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                  <div className={`p-4 rounded-xl border flex items-center justify-between ${
+                    darkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-indigo-50/80 border-indigo-100'
+                  }`}>
+                    <div>
+                      <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                        darkMode ? 'text-slate-400' : 'text-indigo-600'
+                      }`}>Jumlah Perjalanan</p>
+                      <p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                        {totalYearStats.totalTrips}
+                      </p>
+                    </div>
+                    <div className={`p-3 rounded-xl ${darkMode ? 'bg-slate-600' : 'bg-indigo-100'}`}>
+                      <Calendar className={`w-5 h-5 ${darkMode ? 'text-indigo-300' : 'text-indigo-600'}`} />
+                    </div>
+                  </div>
+                  <div className={`p-4 rounded-xl border flex items-center justify-between ${
+                    darkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-emerald-50/80 border-emerald-100'
+                  }`}>
+                    <div>
+                      <p className={`text-[11px] font-bold uppercase tracking-wider ${
+                        darkMode ? 'text-slate-400' : 'text-emerald-600'
+                      }`}>Jumlah Jarak</p>
+                      <p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                        {totalYearStats.totalKM.toFixed(1)} <span className="text-sm font-bold text-slate-400">KM</span>
+                      </p>
+                    </div>
+                    <div className={`p-3 rounded-xl ${darkMode ? 'bg-slate-600' : 'bg-emerald-100'}`}>
+                      <Gauge className={`w-5 h-5 ${darkMode ? 'text-emerald-300' : 'text-emerald-600'}`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- STATISTIK MENGIKUT KENDERAAN --- */}
+              <div className={`p-5 rounded-2xl shadow-sm border ${
+                darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+              }`}>
+                <h3 className={`text-sm font-bold flex items-center gap-2 mb-4 ${
+                  darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
+                }`}>
+                  <Truck className="w-4 h-4" /> Statistik Mengikut Kenderaan (Tahun {statsTahun})
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                   {Object.keys(vehicleStats).map((v) => {
+                    const data = vehicleStats[v];
+                    const isActive = data.trips > 0 || data.km > 0;
+                    const maxKM = Math.max(...Object.values(vehicleStats).map(d => d.km), 0.1);
+                    const percent = maxKM > 0 ? (data.km / maxKM) * 100 : 0;
+
+                    return (
+                      <div
+                        key={v}
+                        className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${
+                          isActive
+                            ? darkMode
+                              ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30'
+                              : 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200'
+                            : darkMode
+                              ? 'bg-slate-700/30 border-slate-600/50 opacity-60'
+                              : 'bg-slate-50/50 border-slate-200/50 opacity-60'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <span className={`text-sm font-bold ${isActive ? (darkMode ? 'text-white' : 'text-slate-800') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>
+                            {v.split('(')[0].trim()}
+                          </span>
+                          <span className={`text-xs font-bold ${isActive ? (darkMode ? 'text-blue-300' : 'text-blue-600') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>
+                            {data.km.toFixed(1)} km
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className={`text-xs font-bold ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                            {data.trips} trip{data.trips !== 1 ? 's' : ''}
+                          </span>
+                          <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-700 ${
+                                isActive ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-500'
+                              }`}
+                              style={{ width: `${Math.max(percent, 2)}%` }}
+                            />
+                          </div>
+                        </div>
+                        <p className={`text-[10px] font-medium mt-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                          {v}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* --- PENAPIS & CARIAN LENGKAP DENGAN BUTANG RESET --- */}
+              <div className={`p-5 rounded-2xl shadow-sm border space-y-4 ${
+                darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+              }`}>
+                <div className={`flex items-center justify-between mb-2 ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    <h3 className={`text-sm font-bold ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
+                      Tapisan & Carian Sistem
+                    </h3>
+                  </div>
+                  <button
+                    onClick={resetFilters}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      darkMode 
+                        ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' 
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" /> Reset
+                  </button>
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className={`w-5 h-5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari nama pemandu, tarikh, kenderaan, atau destinasi..."
+                    className={`w-full pl-11 pr-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[14px] shadow-sm transition-all ${
+                      darkMode 
+                        ? 'bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-[#f39200]' 
+                        : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
+                    }`}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <select 
+                    value={filterPemandu} 
+                    onChange={(e) => setFilterPemandu(e.target.value)} 
+                    className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
+                      darkMode 
+                        ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
+                        : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
+                    }`}
+                  >
+                    <option value="Semua">Semua Pemandu</option>
+                    {drivers.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                  
+                  <select 
+                    value={filterKenderaan} 
+                    onChange={(e) => setFilterKenderaan(e.target.value)} 
+                    className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
+                      darkMode 
+                        ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
+                        : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
+                    }`}
+                  >
+                    <option value="Semua">Semua Kenderaan</option>
+                    {vehicles.map(k => <option key={k} value={k}>{k}</option>)}
+                  </select>
+
+                  <select 
+                    value={filterBulan} 
+                    onChange={(e) => setFilterBulan(e.target.value)} 
+                    className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
+                      darkMode 
+                        ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
+                        : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
+                    }`}
+                  >
+                    {BULAN.map(b => <option key={b.nilai} value={b.nilai}>{b.nama}</option>)}
+                  </select>
+
+                  <select 
+                    value={filterTahun} 
+                    onChange={(e) => setFilterTahun(e.target.value)} 
+                    className={`w-full py-2.5 px-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-semibold text-xs outline-none shadow-sm ${
+                      darkMode 
+                        ? 'bg-slate-700 border-slate-600 text-slate-300 focus:border-[#f39200]' 
+                        : 'bg-white border-slate-200 text-slate-700 focus:border-[#f39200]'
+                    }`}
+                  >
+                    <option value="Semua">Semua Tahun</option>
+                    {[2023, 2024, 2025, 2026, 2027].map(t => <option key={t} value={t.toString()}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* --- SENARAI REKOD DENGAN BUTANG EDIT & DELETE --- */}
+              <div className={`rounded-2xl shadow-sm border overflow-hidden ${
+                darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
+              }`}>
+                <div className="overflow-x-auto hidden sm:block">
+                  <table className="w-full text-sm text-left">
+                    <thead className={`border-b ${
+                      darkMode ? 'bg-slate-700/50 border-slate-600 text-slate-300' : 'bg-[#4A154B]/5 text-slate-600 border-[#4A154B]/10'
+                    }`}>
+                      <tr>
+                        <th className="p-4 font-bold">Tarikh</th>
+                        <th className="p-4 font-bold">Masa</th>
+                        <th className="p-4 font-bold">Kenderaan</th>
+                        <th className="p-4 font-bold">Pemandu</th>
+                        <th className="p-4 font-bold">Destinasi</th>
+                        <th className="p-4 text-center font-bold">Jarak</th>
+                        <th className="p-4 text-center font-bold">Tindakan</th>
+                      </tr>
+                    </thead>
+                    <tbody className={`divide-y ${darkMode ? 'divide-slate-700' : 'divide-slate-100'}`}>
+                      {filteredLogs.map(log => (
+                         <tr key={log.id} className={`transition-colors ${
+                           darkMode ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50/50'
+                          }`}>
+                           <td className={`p-4 font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                             {log.tarikh}
+                           </td>
+                           <td className={`p-4 font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                             {log.masaMula} - {log.masaTamat}
+                           </td>
+                           <td className={`p-4 text-xs font-bold uppercase ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
+                             {log.kenderaan.split(' ')[0]}
+                           </td>
+                           <td className={`p-4 font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                             {log.pemandu}
+                           </td>
+                           <td className={`p-4 truncate max-w-[200px] ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                             {log.tujuan}
+                           </td>
+                           <td className={`p-4 text-center font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                             {log.jarak}
+                           </td>
+                           <td className="p-4 text-center">
+                             <div className="flex items-center justify-center gap-1.5">
+                               <button
+                                 onClick={() => openEditModal(log)}
+                                 className={`p-1.5 rounded-lg transition-all ${
+                                   darkMode 
+                                     ? 'hover:bg-slate-600 text-slate-400 hover:text-white' 
+                                     : 'hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800'
+                                 }`}
+                                 title="Edit rekod"
+                               >
+                                 <Pencil className="w-4 h-4" />
+                               </button>
+                               <button
+                                 onClick={() => handleDeleteLog(log.id)}
+                                 className={`p-1.5 rounded-lg transition-all ${
+                                   darkMode 
+                                     ? 'hover:bg-red-900/30 text-red-400 hover:text-red-300' 
+                                     : 'hover:bg-red-50 text-red-500 hover:text-red-700'
+                                 }`}
+                                 title="Padam rekod"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </button>
+                             </div>
+                           </td>
+                         </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Paparan Kad untuk Skrin Mudah Alih */}
+                <div className="p-4 space-y-4 sm:hidden">
+                  {filteredLogs.length > 0 ? (
+                    filteredLogs.map((log) => (
+                      <div key={log.id} className={`p-5 rounded-2xl shadow-sm border flex flex-col gap-3 ${
+                        darkMode ? 'bg-slate-700 border-slate-600' : 'bg-white border-slate-200'
+                      }`}>
+                        <div className={`flex justify-between items-start border-b pb-3 ${
+                          darkMode ? 'border-slate-600' : 'border-slate-100'
+                        }`}>
+                          <div>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md mb-2 inline-block border ${
+                              darkMode ? 'bg-slate-600 text-[#f39200] border-slate-500' : 'bg-purple-50 text-[#4A154B] border-[#4A154B]/10'
+                            }`}>
+                              {log.kenderaan.split(' ')[0]}
+                            </span>
+                            <h3 className={`font-bold text-[15px] ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                              {log.tarikh}
+                            </h3>
+                            <p className={`text-[12px] font-semibold flex items-center gap-1.5 mt-1 ${
+                              darkMode ? 'text-slate-400' : 'text-slate-500'
+                            }`}>
+                              <Clock className="w-3 h-3" /> {log.masaMula} - {log.masaTamat}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className={`block text-xl font-black ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                              {log.jarak}
+                            </span>
+                            <span className="text-[9px] font-bold uppercase tracking-widest block -mt-0.5 text-slate-400">
+                              KM
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-1">
+                          <p className={`text-[13px] font-semibold flex items-center gap-2 mb-1 ${
+                            darkMode ? 'text-slate-300' : 'text-slate-700'
+                          }`}>
+                            <UserCircle2 className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} /> 
+                            {log.pemandu}
+                          </p>
+                          <p className={`text-[13px] flex items-start gap-2 leading-snug ${
+                            darkMode ? 'text-slate-400' : 'text-slate-600'
+                          }`}>
+                            <MapPin className={`w-4 h-4 shrink-0 mt-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} /> 
+                            <span className="line-clamp-2">{log.tujuan}</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                          <button
+                            onClick={() => openEditModal(log)}
+                            className={`p-2 rounded-lg transition-all ${
+                              darkMode 
+                                ? 'bg-slate-600 text-slate-300 hover:bg-slate-500' 
+                                : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                            }`}
+                            title="Edit rekod"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLog(log.id)}
+                            className={`p-2 rounded-lg transition-all ${
+                              darkMode 
+                                ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' 
+                                : 'bg-red-50 text-red-500 hover:bg-red-100'
+                            }`}
+                            title="Padam rekod"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-10 text-center flex flex-col items-center justify-center">
+                      <div className={`p-4 rounded-full mb-3 shadow-sm border ${
+                        darkMode ? 'bg-slate-700 text-slate-400 border-slate-600' : 'bg-white text-slate-400 border-slate-100'
+                      }`}>
+                        <History className="w-8 h-8" />
+                      </div>
+                      <p className={`font-semibold text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                        Tiada rekod dijumpai<br/>untuk tapisan ini.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1668,8 +1597,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* --- FLOATING BOTTOM NAVIGATION (MOBILE) --- */}
-{/* --- DOCKED BOTTOM NAVIGATION (MOBILE) - KORPORAT MINIMALIS --- */}
+      {/* --- DOCKED BOTTOM NAVIGATION (MOBILE) - KORPORAT MINIMALIS --- */}
       <div className={`no-print fixed bottom-0 left-0 w-full z-50 sm:hidden border-t shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-5 pt-1 transition-colors duration-300 ${
         darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
       }`}>
@@ -1683,7 +1611,6 @@ export default function App() {
                 : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
             }`}
           >
-            {/* Garisan Penunjuk Aktif (Top Indicator) */}
             {activeTab === 'borang' && (
               <div className={`absolute top-[-4px] left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-b-full ${darkMode ? 'bg-[#f39200]' : 'bg-[#4A154B]'}`}></div>
             )}
@@ -1692,14 +1619,13 @@ export default function App() {
           </button>
           
           <button 
-            onClick={() => setActiveTab('laporan')}
+            onClick={handleAdminClick}
             className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 ${
               activeTab === 'laporan' 
                 ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
                 : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
             }`}
           >
-            {/* Garisan Penunjuk Aktif (Top Indicator) */}
             {activeTab === 'laporan' && (
               <div className={`absolute top-[-4px] left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-b-full ${darkMode ? 'bg-[#f39200]' : 'bg-[#4A154B]'}`}></div>
             )}
@@ -1709,6 +1635,88 @@ export default function App() {
           
         </div>
       </div>
+
+      {/* --- MODAL LOGIN ADMIN (Macam dalam video) --- */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`relative w-full max-w-[320px] rounded-[24px] p-6 shadow-2xl ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
+            
+            {/* Header Modal */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Lock className={`w-5 h-5 ${darkMode ? 'text-cyan-400' : 'text-teal-600'}`} />
+                <h3 className={`text-[17px] font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Akses Admin [cite: 6]</h3>
+              </div>
+              <button 
+                onClick={() => setShowLoginModal(false)} 
+                className={`p-1.5 rounded-full transition-colors ${
+                  darkMode ? 'bg-slate-700 text-slate-400 hover:bg-slate-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                }`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form Login */}
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              
+              {loginError && (
+                <div className={`text-[12px] font-bold p-2 rounded-lg text-center ${
+                  darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-600'
+                }`}>
+                  {loginError}
+                </div>
+              )}
+
+              <div>
+                <input 
+                  type="text" 
+                  name="username"
+                  value={loginData.username}
+                  onChange={handleLoginChange}
+                  placeholder="Nama Pengguna" 
+                  className={`w-full px-4 py-3.5 rounded-xl border text-[14px] font-medium outline-none transition-all ${
+                    darkMode 
+                      ? 'bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400' 
+                      : 'bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white'
+                  }`}
+                  required
+                />
+              </div>
+
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleLoginChange}
+                  placeholder="Kata Laluan" 
+                  className={`w-full pl-4 pr-12 py-3.5 rounded-xl border text-[14px] font-medium outline-none transition-all ${
+                    darkMode 
+                      ? 'bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400' 
+                      : 'bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white'
+                  }`}
+                  required
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-slate-400 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                </button>
+              </div>
+
+              <button 
+                type="submit" 
+                className="w-full mt-2 py-3.5 rounded-xl text-white font-bold text-[15px] bg-gradient-to-r from-blue-600 to-cyan-400 hover:opacity-90 active:scale-95 transition-all shadow-md"
+              >
+                Sahkan Log Masuk [cite: 6]
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* --- MODAL TAMBAH PEMANDU (dari borang) --- */}
       {showAddDriverModal && (
