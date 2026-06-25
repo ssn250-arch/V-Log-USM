@@ -1669,36 +1669,40 @@ export default function App() {
       </footer>
 
       {/* --- FLOATING BOTTOM NAVIGATION (MOBILE) --- */}
-      <div className="no-print fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[320px] sm:hidden">
-        <div className={`border shadow-[0_8px_30px_rgb(0,0,0,0.25)] rounded-full p-1.5 flex items-center justify-between gap-1 relative ${
-          darkMode ? 'bg-slate-800 border-slate-700' : 'bg-[#4A154B] border-white/20'
-        }`}>
+{/* --- DOCKED BOTTOM NAVIGATION (MOBILE) --- */}
+      <div className={`no-print fixed bottom-0 left-0 w-full z-50 sm:hidden border-t shadow-[0_-4px_25px_rgb(0,0,0,0.05)] pb-6 pt-1 transition-colors duration-300 backdrop-blur-xl ${
+        darkMode ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200'
+      }`}>
+        <div className="flex items-center justify-around px-2">
           
-          <div 
-             className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[#f39200] rounded-full shadow-md transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-               activeTab === 'borang' ? 'translate-x-0' : 'translate-x-[calc(100%+4px)]'
-             }`}
-          ></div>
-
           <button 
             onClick={() => setActiveTab('borang')}
-            className={`flex-1 relative z-10 flex items-center justify-center gap-2 py-3 rounded-full transition-colors duration-300 ${
-              activeTab === 'borang' ? 'text-white' : (darkMode ? 'text-slate-400 hover:text-white' : 'text-white/60 hover:text-white')
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all duration-300 ${
+              activeTab === 'borang' 
+                ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
+                : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
             }`}
           >
-            <FileText className="w-4 h-4" />
-            <span className="text-[12px] font-bold">Borang</span>
+            <div className={`p-1.5 rounded-lg transition-all duration-300 ${activeTab === 'borang' ? (darkMode ? 'bg-[#f39200]/10' : 'bg-[#4A154B]/10') : 'bg-transparent'}`}>
+              <FileText className={`w-5 h-5 transition-transform ${activeTab === 'borang' ? 'scale-110 stroke-[2.5px]' : 'stroke-2'}`} />
+            </div>
+            <span className="text-[10px] font-bold">Borang</span>
           </button>
           
           <button 
             onClick={() => setActiveTab('laporan')}
-             className={`flex-1 relative z-10 flex items-center justify-center gap-2 py-3 rounded-full transition-colors duration-300 ${
-              activeTab === 'laporan' ? 'text-white' : (darkMode ? 'text-slate-400 hover:text-white' : 'text-white/60 hover:text-white')
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all duration-300 ${
+              activeTab === 'laporan' 
+                ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
+                : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
-            <span className="text-[12px] font-bold">Admin</span>
+            <div className={`p-1.5 rounded-lg transition-all duration-300 ${activeTab === 'laporan' ? (darkMode ? 'bg-[#f39200]/10' : 'bg-[#4A154B]/10') : 'bg-transparent'}`}>
+              <ShieldCheck className={`w-5 h-5 transition-transform ${activeTab === 'laporan' ? 'scale-110 stroke-[2.5px]' : 'stroke-2'}`} />
+            </div>
+            <span className="text-[10px] font-bold">Admin</span>
           </button>
+          
         </div>
       </div>
 
