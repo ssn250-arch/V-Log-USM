@@ -37,7 +37,8 @@ import {
   Calendar,
   BarChart,
   Pencil,
-  RotateCcw
+  RotateCcw,
+  Loader2
 } from 'lucide-react';
 
 // --- DATA TETAP (DEFAULT) ---
@@ -86,7 +87,7 @@ export default function App() {
   const [logs, setLogs] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // --- DARK MODE ---
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('vlog_dark_mode');
@@ -231,30 +232,38 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newLog = {
-      id: Date.now().toString(),
-      ...formData,
-      jarak: liveJarak,
-      timestamp: new Date().toISOString()
-    };
-    const updatedLogs = [newLog, ...logs];
-    setLogs(updatedLogs);
-    localStorage.setItem('vlog_usm_logs', JSON.stringify(updatedLogs));
+    setIsSubmitting(true); // Aktifkan animasi loading
 
-    setSuccessMessage('Rekod baharu berjaya disimpan!');
-    setShowSuccess(true);
-    setFormData({
-      tarikh: new Date().toISOString().slice(0, 10),
-      masaMula: '',
-      masaTamat: '',
-      pemandu: '',
-      kenderaan: '',
-      tujuan: '',
-      odometerMula: '',
-      odometerTamat: ''
-    });
-    setTimeout(() => setShowSuccess(false), 3000);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Simulasi kelewatan proses untuk gaya korporat (800ms)
+    setTimeout(() => {
+      const newLog = {
+        id: Date.now().toString(),
+        ...formData,
+        jarak: liveJarak,
+        timestamp: new Date().toISOString()
+      };
+
+      const updatedLogs = [newLog, ...logs];
+      setLogs(updatedLogs);
+      localStorage.setItem('vlog_usm_logs', JSON.stringify(updatedLogs));
+
+      setSuccessMessage('Rekod baharu berjaya disimpan!');
+      setShowSuccess(true);
+      setFormData({
+        tarikh: new Date().toISOString().slice(0, 10),
+        masaMula: '',
+        masaTamat: '',
+        pemandu: '',
+        kenderaan: '',
+        tujuan: '',
+        odometerMula: '',
+        odometerTamat: ''
+      });
+
+      setIsSubmitting(false); // Matikan animasi loading
+      setTimeout(() => setShowSuccess(false), 3000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800); 
   };
 
   const cetakPDF = () => {
@@ -902,9 +911,34 @@ export default function App() {
                   </div>
                 </div>
 
-                <button type="submit" className="w-full bg-gradient-to-r from-[#4A154B] to-[#3a0f3b] active:from-[#3a0f3b] hover:from-[#3a0f3b] hover:shadow-lg text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 text-[15px]">
-                  Sah & Hantar Rekod <ChevronRight className="w-5 h-5" />
-                </button>
+                <button 
+  type="submit" 
+  disabled={isSubmitting}
+  className={`w-full font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-[15px] relative overflow-hidden ${
+    isSubmitting || showSuccess
+      ? 'bg-[#3a0f3b] text-white opacity-90 cursor-not-allowed scale-[0.98]'
+      : 'bg-gradient-to-r from-[#4A154B] to-[#3a0f3b] hover:from-[#3a0f3b] hover:shadow-lg text-white active:scale-[0.98]'
+  }`}
+>
+  {isSubmitting ? (
+    // Animasi Loading Korporat
+    <>
+      <Loader2 className="w-5 h-5 animate-spin text-[#f39200]" />
+      <span className="animate-pulse">Sistem Memproses Data...</span>
+    </>
+  ) : showSuccess ? (
+    // Animasi Berjaya Dihantar
+    <>
+      <CheckCircle2 className="w-5 h-5 text-emerald-400 animate-in zoom-in" />
+      <span className="text-emerald-50">Selesai Dihantar!</span>
+    </>
+  ) : (
+    // Paparan Asal Butang
+    <>
+      Sah & Hantar Rekod <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+    </>
+  )}
+</button>
               </form>
             </div>
           )}
