@@ -83,11 +83,11 @@ const NAMA_BULAN = {
 export default function App() {
   // --- STATE UTAMA ---
   const [activeTab, setActiveTab] = useState('borang');
-
   const [logs, setLogs] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // State baru untuk butang hantar
+
   // --- DARK MODE ---
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('vlog_dark_mode');
@@ -232,7 +232,7 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Aktifkan animasi loading
+    setIsSubmitting(true);
 
     // Simulasi kelewatan proses untuk gaya korporat (800ms)
     setTimeout(() => {
@@ -260,10 +260,10 @@ export default function App() {
         odometerTamat: ''
       });
 
-      setIsSubmitting(false); // Matikan animasi loading
+      setIsSubmitting(false);
       setTimeout(() => setShowSuccess(false), 3000);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 800); 
+    }, 800);
   };
 
   const cetakPDF = () => {
@@ -561,10 +561,19 @@ export default function App() {
       <style>
         {`
           @media print {
-            body { background-color: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; color-adjust: exact; font-family: Arial, sans-serif; }
+            /* 1. PAKSA LEBAR LANDSCAPE UNTUK MOBILE */
+            body { 
+              background-color: white;
+              margin: 0; 
+              padding: 0; 
+              -webkit-print-color-adjust: exact; 
+              color-adjust: exact; 
+              font-family: Arial, sans-serif;
+              min-width: 297mm !important; /* Memaksa kelebaran kertas A4 Melintang */
+            }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            #print-area { padding: 40px; color: #333; }
+            #print-area { padding: 40px; color: #333; width: 100%; box-sizing: border-box; }
             
             /* --- HEADER PDF --- */
             .print-header { border-bottom: 3px solid #4A154B; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -575,31 +584,53 @@ export default function App() {
             
             /* --- FIX JADUAL (TIDAK TERPOTONG) --- */
             table { 
-              width: 100%; 
+              width: 100%;
               border-collapse: collapse; 
               margin-top: 10px; 
               font-size: 11px; 
-              page-break-inside: auto; /* Membenarkan jadual masuk ke page baru */
             }
             thead { 
-              display: table-header-group; /* Ulang header jadual pada page baru */
+              display: table-header-group; /* Ulang header jadual pada muka surat baru */
             }
+            tbody {
+              display: table-row-group;
+            }
+            
+            /* 2. ARAHAN HALANG BARIS TERPOTONG (PAGE BREAK) */
             tr { 
-              page-break-inside: avoid; /* Halang baris dari terpotong separuh */
-              page-break-after: auto; 
+              page-break-inside: avoid !important; /* Pelayar lama */
+              break-inside: avoid !important; /* Pelayar moden (Chrome/Safari) */
             }
-            th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: left; }
+            td, th { 
+              border: 1px solid #ddd;
+              padding: 10px 8px; 
+              text-align: left; 
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+            }
             th { background-color: #4A154B !important; color: white !important; font-weight: bold; text-align: center; }
             tr:nth-child(even) { background-color: #f9f9f9 !important; }
             
             /* --- RINGKASAN & FOOTER --- */
-            .print-summary { margin-top: 30px; padding: 15px; background-color: #f3f4f6 !important; border-radius: 8px; border-left: 4px solid #f39200; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
-            .print-footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; page-break-inside: avoid; }
+            .print-summary { 
+              margin-top: 30px; padding: 15px; background-color: #f3f4f6 !important; border-radius: 8px; border-left: 4px solid #f39200; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; 
+              page-break-inside: avoid !important; 
+              break-inside: avoid !important; 
+            }
+            .print-footer { 
+              margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; 
+              page-break-inside: avoid !important; 
+              break-inside: avoid !important; 
+            }
             .qr-section { text-align: center; }
             .qr-section img { width: 80px; height: 80px; margin: 0 auto; border: 1px solid #eee; padding: 4px; border-radius: 8px; }
             .signature-section { text-align: right; width: auto; align-self: center; }
             
-            @page { size: A4 landscape; margin: 10mm; }
+            /* 3. SETTINGS KERTAS LALAI */
+            @page { 
+              size: A4 landscape;
+              margin: 10mm; 
+            }
           }
           .print-only { display: none; }
         `}
@@ -873,7 +904,7 @@ export default function App() {
                         min="0" 
                         placeholder="Contoh: 10800" 
                         className={`w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-bold text-lg text-center shadow-inner transition-all ${
-                           darkMode 
+                          darkMode 
                             ? 'bg-slate-700 border-slate-600 text-slate-100 focus:border-[#f39200]' 
                             : 'bg-white border-slate-200 text-slate-900 focus:border-[#f39200]'
                         }`}
@@ -912,33 +943,30 @@ export default function App() {
                 </div>
 
                 <button 
-  type="submit" 
-  disabled={isSubmitting}
-  className={`w-full font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-[15px] relative overflow-hidden ${
-    isSubmitting || showSuccess
-      ? 'bg-[#3a0f3b] text-white opacity-90 cursor-not-allowed scale-[0.98]'
-      : 'bg-gradient-to-r from-[#4A154B] to-[#3a0f3b] hover:from-[#3a0f3b] hover:shadow-lg text-white active:scale-[0.98]'
-  }`}
->
-  {isSubmitting ? (
-    // Animasi Loading Korporat
-    <>
-      <Loader2 className="w-5 h-5 animate-spin text-[#f39200]" />
-      <span className="animate-pulse">Sistem Memproses Data...</span>
-    </>
-  ) : showSuccess ? (
-    // Animasi Berjaya Dihantar
-    <>
-      <CheckCircle2 className="w-5 h-5 text-emerald-400 animate-in zoom-in" />
-      <span className="text-emerald-50">Selesai Dihantar!</span>
-    </>
-  ) : (
-    // Paparan Asal Butang
-    <>
-      Sah & Hantar Rekod <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-    </>
-  )}
-</button>
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`w-full font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-[15px] relative overflow-hidden ${
+                    isSubmitting || showSuccess
+                      ? 'bg-[#3a0f3b] text-white opacity-90 cursor-not-allowed scale-[0.98]'
+                      : 'bg-gradient-to-r from-[#4A154B] to-[#3a0f3b] hover:from-[#3a0f3b] hover:shadow-lg text-white active:scale-[0.98]'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-[#f39200]" />
+                      <span className="animate-pulse">Sistem Memproses Data...</span>
+                    </>
+                  ) : showSuccess ? (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 animate-in zoom-in" />
+                      <span className="text-emerald-50">Selesai Dihantar!</span>
+                    </>
+                  ) : (
+                    <>
+                      Sah & Hantar Rekod <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
               </form>
             </div>
           )}
@@ -1077,7 +1105,7 @@ export default function App() {
                     }`}>
                       <div className="flex justify-between items-start">
                         <p className={`text-[11px] font-bold uppercase tracking-wider ${
-                          darkMode ? 'text-slate-400' : 'text-emerald-700'
+                           darkMode ? 'text-slate-400' : 'text-emerald-700'
                         }`}>Jumlah (KM)</p>
                         <div className={`p-2.5 rounded-xl ${
                           darkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-600'
@@ -1177,6 +1205,7 @@ export default function App() {
                           ))}
                         </div>
                       </div>
+        
                       {/* Bahagian Kenderaan */}
                       <div className="space-y-2">
                         <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
@@ -1361,7 +1390,7 @@ export default function App() {
                       <Truck className="w-4 h-4" /> Statistik Mengikut Kenderaan (Tahun {statsTahun})
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                       {Object.keys(vehicleStats).map((v) => {
+                      {Object.keys(vehicleStats).map((v) => {
                         const data = vehicleStats[v];
                         const isActive = data.trips > 0 || data.km > 0;
                         const maxKM = Math.max(...Object.values(vehicleStats).map(d => d.km), 0.1);
@@ -1527,7 +1556,7 @@ export default function App() {
                           {filteredLogs.map(log => (
                              <tr key={log.id} className={`transition-colors ${
                                darkMode ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50/50'
-                              }`}>
+                               }`}>
                                <td className={`p-4 font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
                                  {log.tarikh}
                                </td>
@@ -1584,10 +1613,10 @@ export default function App() {
                         filteredLogs.map((log) => (
                           <div key={log.id} className={`p-5 rounded-2xl shadow-sm border flex flex-col gap-3 ${
                             darkMode ? 'bg-slate-700 border-slate-600' : 'bg-white border-slate-200'
-                          }`}>
+                           }`}>
                             <div className={`flex justify-between items-start border-b pb-3 ${
                               darkMode ? 'border-slate-600' : 'border-slate-100'
-                            }`}>
+                             }`}>
                               <div>
                                 <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md mb-2 inline-block border ${
                                   darkMode ? 'bg-slate-600 text-[#f39200] border-slate-500' : 'bg-purple-50 text-[#4A154B] border-[#4A154B]/10'
@@ -1701,13 +1730,12 @@ export default function App() {
         </div>
       </footer>
 
-{/* --- FLOATING BOTTOM NAVIGATION (MOBILE) - GAYA SHIFTING PILL INTERAKTIF --- */}
+      {/* --- FLOATING BOTTOM NAVIGATION (MOBILE) --- */}
       <div className="no-print fixed bottom-6 left-1/2 -translate-x-1/2 z-50 sm:hidden">
         <div className={`flex items-center gap-1.5 p-1.5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] border backdrop-blur-xl transition-all duration-500 ease-in-out ${
           darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-slate-200/80'
         }`}>
           
-          {/* Butang Borang */}
           <button 
             onClick={() => setActiveTab('borang')}
             className={`flex items-center justify-center h-12 rounded-full transition-all duration-300 ease-in-out ${
@@ -1724,7 +1752,6 @@ export default function App() {
             </span>
           </button>
           
-          {/* Butang Admin */}
           <button 
             onClick={() => setActiveTab('laporan')}
             className={`flex items-center justify-center h-12 rounded-full transition-all duration-300 ease-in-out ${
@@ -1744,7 +1771,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* --- MODAL TAMBAH PEMANDU (dari borang) --- */}
+      {/* --- MODAL TAMBAH PEMANDU --- */}
       {showAddDriverModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border ${
@@ -1790,7 +1817,7 @@ export default function App() {
         </div>
       )}
 
-      {/* --- MODAL TAMBAH KENDERAAN (dari borang) --- */}
+      {/* --- MODAL TAMBAH KENDERAAN --- */}
       {showAddVehicleModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border ${
@@ -1800,7 +1827,8 @@ export default function App() {
               <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
                 Tambah Kenderaan Baharu
               </h3>
-              <button onClick={() => { setShowAddVehicleModal(false); setQuickVehicleName(''); }} className={`p-2 rounded-full transition-colors ${
+              <button onClick={() => { setShowAddVehicleModal(false); setQuickVehicleName('');
+}} className={`p-2 rounded-full transition-colors ${
                 darkMode ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
               }`}>
                 <X className="w-5 h-5" />
@@ -1906,7 +1934,7 @@ export default function App() {
                     onChange={handleEditInputChange} 
                     required 
                     className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm ${
-                      darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+                       darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
                     }`}
                   />
                 </div>
