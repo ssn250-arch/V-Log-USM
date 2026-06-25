@@ -556,21 +556,40 @@ export default function App() {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             #print-area { padding: 40px; color: #333; }
+            
+            /* --- HEADER PDF --- */
             .print-header { border-bottom: 3px solid #4A154B; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
             .print-header img { height: 70px; object-fit: contain; }
             .print-header-text { text-align: right; }
             .print-header-text h1 { color: #4A154B; font-size: 24px; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px; }
             .print-header-text p { margin: 2px 0; font-size: 12px; color: #555; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+            
+            /* --- FIX JADUAL (TIDAK TERPOTONG) --- */
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
+              margin-top: 10px; 
+              font-size: 11px; 
+              page-break-inside: auto; /* Membenarkan jadual masuk ke page baru */
+            }
+            thead { 
+              display: table-header-group; /* Ulang header jadual pada page baru */
+            }
+            tr { 
+              page-break-inside: avoid; /* Halang baris dari terpotong separuh */
+              page-break-after: auto; 
+            }
             th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: left; }
             th { background-color: #4A154B !important; color: white !important; font-weight: bold; text-align: center; }
             tr:nth-child(even) { background-color: #f9f9f9 !important; }
+            
+            /* --- RINGKASAN & FOOTER --- */
             .print-summary { margin-top: 30px; padding: 15px; background-color: #f3f4f6 !important; border-radius: 8px; border-left: 4px solid #f39200; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
             .print-footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; page-break-inside: avoid; }
             .qr-section { text-align: center; }
             .qr-section img { width: 80px; height: 80px; margin: 0 auto; border: 1px solid #eee; padding: 4px; border-radius: 8px; }
-            .signature-section { text-align: center; width: 250px; }
-            .signature-line { border-bottom: 1px solid #000; margin: 40px 0 10px 0; }
+            .signature-section { text-align: right; width: auto; align-self: center; }
+            
             @page { size: A4 landscape; margin: 10mm; }
           }
           .print-only { display: none; }
@@ -2032,11 +2051,10 @@ export default function App() {
           </div>
          
           <div className="signature-section">
-            <p style={{ textAlign: 'left', fontSize: '12px', fontWeight: 'bold' }}>Disediakan / Disahkan Oleh:</p>
-            <div className="signature-line"></div>
-            <p style={{ fontSize: '12px', textAlign: 'left' }}>Nama:</p>
-            <p style={{ fontSize: '12px', textAlign: 'left', marginTop: '5px' }}>Jawatan: Pentadbir Sistem</p>
-            <p style={{ fontSize: '12px', textAlign: 'left', marginTop: '5px' }}>Pusat Islam, USM</p>
+            <p style={{ fontSize: '13px', fontStyle: 'italic', color: '#555', fontWeight: '500' }}>
+              * Tidak perlu tandatangan kerana dokumen ini adalah cetakan digital.<br/>
+              (Disahkan melalui kod QR Sistem V-Log@USM)
+            </p>
           </div>
         </div>
       </div>
