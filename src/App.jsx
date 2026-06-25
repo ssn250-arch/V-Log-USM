@@ -1668,36 +1668,44 @@ export default function App() {
         </div>
       </footer>
 
-{/* --- FLOATING BOTTOM NAVIGATION (MOBILE) - GAYA MODEN --- */}
-      <div className="no-print fixed bottom-6 left-1/2 -translate-x-1/2 w-[85%] max-w-[320px] z-50 sm:hidden">
-        <div className={`flex items-center justify-around h-16 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border backdrop-blur-xl transition-colors duration-300 ${
-          darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+{/* --- FLOATING BOTTOM NAVIGATION (MOBILE) - GAYA SHIFTING PILL INTERAKTIF --- */}
+      <div className="no-print fixed bottom-6 left-1/2 -translate-x-1/2 z-50 sm:hidden">
+        <div className={`flex items-center gap-1.5 p-1.5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] border backdrop-blur-xl transition-all duration-500 ease-in-out ${
+          darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-slate-200/80'
         }`}>
           
+          {/* Butang Borang */}
           <button 
             onClick={() => setActiveTab('borang')}
-            className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 rounded-l-full ${
+            className={`flex items-center justify-center h-12 rounded-full transition-all duration-300 ease-in-out ${
               activeTab === 'borang' 
-                ? (darkMode ? 'text-[#f39200] bg-slate-700/50' : 'text-[#4A154B] bg-[#4A154B]/5') 
-                : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
+                ? (darkMode ? 'text-[#f39200] bg-slate-800 border border-slate-700/60 px-5 font-bold shadow-sm' : 'text-[#4A154B] bg-[#4A154B]/5 border border-[#4A154B]/10 px-5 font-bold shadow-sm') 
+                : (darkMode ? 'text-slate-500 w-12 hover:text-slate-400' : 'text-slate-400 w-12 hover:text-slate-600')
             }`}
           >
-            <FileText className={`w-5 h-5 mb-0.5 ${activeTab === 'borang' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-            <span className="text-[10px] font-bold tracking-wide">Borang</span>
+            <FileText className={`w-5 h-5 shrink-0 ${activeTab === 'borang' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+            <span className={`text-[11px] font-bold tracking-wide overflow-hidden transition-all duration-300 ease-in-out ${
+              activeTab === 'borang' ? 'max-w-[60px] ml-2 opacity-100' : 'max-w-0 opacity-0'
+            }`}>
+              Borang
+            </span>
           </button>
           
-          <div className={`w-[1px] h-8 ${darkMode ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-
+          {/* Butang Admin */}
           <button 
             onClick={() => setActiveTab('laporan')}
-            className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 rounded-r-full ${
+            className={`flex items-center justify-center h-12 rounded-full transition-all duration-300 ease-in-out ${
               activeTab === 'laporan' 
-                ? (darkMode ? 'text-[#f39200] bg-slate-700/50' : 'text-[#4A154B] bg-[#4A154B]/5') 
-                : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
+                ? (darkMode ? 'text-[#f39200] bg-slate-800 border border-slate-700/60 px-5 font-bold shadow-sm' : 'text-[#4A154B] bg-[#4A154B]/5 border border-[#4A154B]/10 px-5 font-bold shadow-sm') 
+                : (darkMode ? 'text-slate-500 w-12 hover:text-slate-400' : 'text-slate-400 w-12 hover:text-slate-600')
             }`}
           >
-            <ShieldCheck className={`w-5 h-5 mb-0.5 ${activeTab === 'laporan' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-            <span className="text-[10px] font-bold tracking-wide">Admin</span>
+            <ShieldCheck className={`w-5 h-5 shrink-0 ${activeTab === 'laporan' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+            <span className={`text-[11px] font-bold tracking-wide overflow-hidden transition-all duration-300 ease-in-out ${
+              activeTab === 'laporan' ? 'max-w-[60px] ml-2 opacity-100' : 'max-w-0 opacity-0'
+            }`}>
+              Admin
+            </span>
           </button>
           
         </div>
