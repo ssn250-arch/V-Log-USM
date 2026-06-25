@@ -780,9 +780,8 @@ export default function App() {
                       value={formData.tarikh} 
                       onChange={handleInputChange} 
                       required 
-                      className={`w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm transition-all ${
-                        darkMode 
-                          ? 'bg-slate-700 border-slate-600 text-slate-100 focus:border-[#f39200]' 
+                      className={`block appearance-none min-w-0 w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm transition-all ${
+                        darkMode ? 'bg-slate-700 border-slate-600 text-slate-100 focus:border-[#f39200]' 
                           : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
                       }`}
                     />
@@ -798,7 +797,7 @@ export default function App() {
                         value={formData.masaMula} 
                         onChange={handleInputChange} 
                         required 
-                        className={`w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm transition-all ${
+                        className={`block appearance-none min-w-0 w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm transition-all ${
                           darkMode 
                             ? 'bg-slate-700 border-slate-600 text-slate-100 focus:border-[#f39200]' 
                             : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
@@ -815,7 +814,7 @@ export default function App() {
                         value={formData.masaTamat} 
                         onChange={handleInputChange} 
                         required 
-                        className={`w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm transition-all ${
+                        className={`block appearance-none min-w-0 w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-[#f39200] font-medium text-[15px] shadow-sm transition-all ${
                           darkMode 
                             ? 'bg-slate-700 border-slate-600 text-slate-100 focus:border-[#f39200]' 
                             : 'bg-white border-slate-200 text-slate-800 focus:border-[#f39200]'
