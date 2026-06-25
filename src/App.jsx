@@ -1669,38 +1669,42 @@ export default function App() {
       </footer>
 
       {/* --- FLOATING BOTTOM NAVIGATION (MOBILE) --- */}
-{/* --- DOCKED BOTTOM NAVIGATION (MOBILE) --- */}
-      <div className={`no-print fixed bottom-0 left-0 w-full z-50 sm:hidden border-t shadow-[0_-4px_25px_rgb(0,0,0,0.05)] pb-6 pt-1 transition-colors duration-300 backdrop-blur-xl ${
-        darkMode ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200'
+{/* --- DOCKED BOTTOM NAVIGATION (MOBILE) - KORPORAT MINIMALIS --- */}
+      <div className={`no-print fixed bottom-0 left-0 w-full z-50 sm:hidden border-t shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-5 pt-1 transition-colors duration-300 ${
+        darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
       }`}>
-        <div className="flex items-center justify-around px-2">
+        <div className="flex items-center justify-around h-14">
           
           <button 
             onClick={() => setActiveTab('borang')}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all duration-300 ${
+            className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 ${
               activeTab === 'borang' 
                 ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
                 : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
             }`}
           >
-            <div className={`p-1.5 rounded-lg transition-all duration-300 ${activeTab === 'borang' ? (darkMode ? 'bg-[#f39200]/10' : 'bg-[#4A154B]/10') : 'bg-transparent'}`}>
-              <FileText className={`w-5 h-5 transition-transform ${activeTab === 'borang' ? 'scale-110 stroke-[2.5px]' : 'stroke-2'}`} />
-            </div>
-            <span className="text-[10px] font-bold">Borang</span>
+            {/* Garisan Penunjuk Aktif (Top Indicator) */}
+            {activeTab === 'borang' && (
+              <div className={`absolute top-[-4px] left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-b-full ${darkMode ? 'bg-[#f39200]' : 'bg-[#4A154B]'}`}></div>
+            )}
+            <FileText className={`w-[22px] h-[22px] mb-1 ${activeTab === 'borang' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+            <span className="text-[11px] font-bold tracking-wide">Borang</span>
           </button>
           
           <button 
             onClick={() => setActiveTab('laporan')}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all duration-300 ${
+            className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 ${
               activeTab === 'laporan' 
                 ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
                 : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
             }`}
           >
-            <div className={`p-1.5 rounded-lg transition-all duration-300 ${activeTab === 'laporan' ? (darkMode ? 'bg-[#f39200]/10' : 'bg-[#4A154B]/10') : 'bg-transparent'}`}>
-              <ShieldCheck className={`w-5 h-5 transition-transform ${activeTab === 'laporan' ? 'scale-110 stroke-[2.5px]' : 'stroke-2'}`} />
-            </div>
-            <span className="text-[10px] font-bold">Admin</span>
+            {/* Garisan Penunjuk Aktif (Top Indicator) */}
+            {activeTab === 'laporan' && (
+              <div className={`absolute top-[-4px] left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-b-full ${darkMode ? 'bg-[#f39200]' : 'bg-[#4A154B]'}`}></div>
+            )}
+            <ShieldCheck className={`w-[22px] h-[22px] mb-1 ${activeTab === 'laporan' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+            <span className="text-[11px] font-bold tracking-wide">Admin</span>
           </button>
           
         </div>
