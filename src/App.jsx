@@ -39,7 +39,8 @@ import {
   Pencil,
   RotateCcw,
   Eye,
-  EyeOff
+  EyeOff,
+  Crown
 } from 'lucide-react';
 
 // --- DATA TETAP (DEFAULT) ---
@@ -287,7 +288,7 @@ export default function App() {
       setLoginError('');
       setLoginData({ username: '', password: '' });
       setShowLoginModal(false);
-      setActiveTab('laporan'); // Terus masuk dashboard lepas berjaya login
+      setActiveTab('laporan');
     } else {
       setLoginError('ID Pengguna atau Kata Laluan tidak sah.');
     }
@@ -295,7 +296,7 @@ export default function App() {
 
   const handleLogout = () => {
     setIsAdminLoggedIn(false);
-    setActiveTab('borang'); // Kembali ke borang lepas logout
+    setActiveTab('borang');
   };
 
   // --- FUNGSI TAMBAH CEPAT DARI BORANG (HANYA UNTUK ADMIN) ---
@@ -572,14 +573,12 @@ export default function App() {
             .print-only { display: block !important; }
             #print-area { padding: 40px; color: #333; }
             
-            /* --- HEADER PDF --- */
             .print-header { border-bottom: 3px solid #4A154B; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
             .print-header img { height: 70px; object-fit: contain; }
             .print-header-text { text-align: right; }
             .print-header-text h1 { color: #4A154B; font-size: 24px; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px; }
             .print-header-text p { margin: 2px 0; font-size: 12px; color: #555; }
             
-            /* --- FIX JADUAL (TIDAK TERPOTONG) --- */
             table { 
               width: 100%; 
               border-collapse: collapse; 
@@ -593,7 +592,6 @@ export default function App() {
             th { background-color: #4A154B !important; color: white !important; font-weight: bold; text-align: center; }
             tr:nth-child(even) { background-color: #f9f9f9 !important; }
             
-            /* --- RINGKASAN & FOOTER --- */
             .print-summary { margin-top: 30px; padding: 15px; background-color: #f3f4f6 !important; border-radius: 8px; border-left: 4px solid #f39200; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
             .print-footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; page-break-inside: avoid; }
             .qr-section { text-align: center; }
@@ -606,7 +604,7 @@ export default function App() {
         `}
       </style>
 
-      {/* --- TOP NAVIGATION BAR --- */}
+      {/* --- TOP NAVIGATION BAR (DIUBAH LEBIH KORPORAT) --- */}
       <nav className={`no-print fixed top-0 w-full border-b shadow-[0_4px_20px_rgb(0,0,0,0.15)] z-50 transition-transform duration-500 ease-in-out ${
         showNavbar ? 'translate-y-0' : '-translate-y-full'
       } ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-[#4A154B] border-white/10'}`}>
@@ -638,12 +636,13 @@ export default function App() {
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <div className={`hidden sm:flex items-center relative p-1.5 rounded-2xl border shadow-inner ${
+            {/* Navigasi Tab – direka bentuk lebih korporat dengan latar belakang gelap dan aksen emas */}
+            <div className={`flex items-center relative p-1.5 rounded-2xl border shadow-inner ${
               darkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-black/20 border-white/10'
             }`}>
               <div 
-                className={`absolute top-1.5 bottom-1.5 w-[150px] bg-[#f39200] rounded-xl shadow-md transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-                  activeTab === 'borang' ? 'translate-x-0' : 'translate-x-[150px]'
+                className={`absolute top-1.5 bottom-1.5 w-[150px] rounded-xl shadow-md transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+                  activeTab === 'borang' ? 'translate-x-0 bg-[#f39200]' : 'translate-x-[150px] bg-[#f39200]'
                 }`}
               ></div>
               
@@ -655,13 +654,25 @@ export default function App() {
               >
                 <FileText className="w-4 h-4" /> Borang
               </button>
+
+              {/* Butang Admin – lebih menonjol dengan ikon Crown dan warna emas/ungu */}
               <button 
                 onClick={handleAdminClick}
                 className={`relative z-10 w-[150px] py-2 rounded-xl text-sm font-bold transition-colors duration-300 flex items-center justify-center gap-2 ${
-                  activeTab === 'laporan' ? 'text-white' : (darkMode ? 'text-slate-400 hover:text-white' : 'text-white/60 hover:text-white')
+                  activeTab === 'laporan' 
+                    ? 'text-white' 
+                    : (darkMode ? 'text-slate-400 hover:text-white' : 'text-white/60 hover:text-white')
                 }`}
               >
-                <ShieldCheck className="w-4 h-4" /> Admin
+                {isAdminLoggedIn ? (
+                  <>
+                    <Crown className="w-4 h-4 text-[#f39200]" /> Pentadbiran
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" /> Admin
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -669,7 +680,7 @@ export default function App() {
       </nav>
 
       {/* --- KANDUNGAN UTAMA --- */}
-      <div className={`no-print w-full mx-auto px-4 sm:px-6 pt-28 pb-32 relative z-10 flex-grow transition-all duration-500 ${
+      <div className={`no-print w-full mx-auto px-4 sm:px-6 pt-28 pb-16 relative z-10 flex-grow transition-all duration-500 ${
         activeTab === 'laporan' && isAdminLoggedIn ? 'max-w-6xl' : 'max-w-2xl'
       }`}>
         
@@ -920,23 +931,27 @@ export default function App() {
             </div>
           )}
 
-          {/* ===== LAPORAN ADMIN (Hanya dipaparkan jika log masuk berjaya) ===== */}
+          {/* ===== LAPORAN ADMIN (DIPAPARKAN LEBIH KORPORAT) ===== */}
           {activeTab === 'laporan' && isAdminLoggedIn && (
             <div className="space-y-6">
               
-              <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl shadow-sm border ${
+              {/* Header Papan Pemuka dengan sentuhan korporat */}
+              <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-2xl shadow-lg border-l-4 border-[#f39200] ${
                 darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
               }`}>
                 <div>
-                  <h2 className={`text-lg font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                    <Building2 className="w-5 h-5 text-[#f39200]" /> Papan Pemuka V-Log@USM
+                  <h2 className={`text-xl font-bold flex items-center gap-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                    <div className="p-2 bg-[#f39200]/10 rounded-xl">
+                      <Crown className="w-6 h-6 text-[#f39200]" />
+                    </div>
+                    <span>Papan Pemuka Pentadbiran</span>
                   </h2>
-                  <p className={`text-sm mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Urus rekod, statistik, dan jana laporan PDF rasmi.
+                  <p className={`text-sm mt-1 ml-1 font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Urus rekod, analisis statistik, dan jana laporan rasmi.
                   </p>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
-                  <button onClick={cetakPDF} disabled={filteredLogs.length === 0} className="flex-1 sm:flex-none bg-[#f39200] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95 transition-all shadow-md hover:bg-[#e08600]">
+                  <button onClick={cetakPDF} disabled={filteredLogs.length === 0} className="flex-1 sm:flex-none bg-[#f39200] text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95 transition-all shadow-md hover:bg-[#e08600]">
                     <Download className="w-4 h-4" /> Eksport PDF
                   </button>
                   <button onClick={handleLogout} className={`p-2.5 rounded-xl transition-colors shadow-sm ${
@@ -947,7 +962,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* --- KAD STATISTIK KORPORAT --- */}
+              {/* --- KAD STATISTIK KORPORAT (reka bentuk lebih profesional) --- */}
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div className={`relative overflow-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between border ${
                   darkMode ? 'bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600' : 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-100'
@@ -1029,17 +1044,17 @@ export default function App() {
               </div>
 
               {/* --- PANEL URUS DATA INDUK (ADMIN) --- */}
-              <div className={`p-5 rounded-2xl shadow-sm border ${
+              <div className={`p-6 rounded-2xl shadow-md border ${
                 darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
               }`}>
-                <h3 className={`text-sm font-bold flex items-center gap-2 ${
+                <h3 className={`text-sm font-bold flex items-center gap-2 mb-4 ${
                   darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
                 }`}>
-                  <Users className="w-4 h-4" /> Urus Data Induk (Pemandu & Kenderaan)
+                  <Users className="w-5 h-5" /> Urus Data Induk (Pemandu & Kenderaan)
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Bahagian Pemandu */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                       Senarai Pemandu
                     </label>
@@ -1049,22 +1064,22 @@ export default function App() {
                         value={newDriverAdmin}
                         onChange={(e) => setNewDriverAdmin(e.target.value)}
                         placeholder="Nama pemandu..."
-                        className={`flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
+                        className={`flex-1 px-4 py-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
                           darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
                         }`}
                       />
                       <button
                         onClick={handleAddDriverAdmin}
-                        className="px-4 py-2 bg-[#4A154B] text-white rounded-xl text-sm font-bold hover:bg-[#3a0f3b] active:scale-95 transition-all"
+                        className="px-5 py-2.5 bg-[#4A154B] text-white rounded-xl text-sm font-bold hover:bg-[#3a0f3b] active:scale-95 transition-all shadow-sm"
                       >
                         Tambah
                       </button>
                     </div>
-                    <div className={`flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl border ${
+                    <div className={`flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-3 rounded-xl border ${
                       darkMode ? 'bg-slate-700/30 border-slate-600' : 'bg-slate-50 border-slate-200'
                     }`}>
                       {drivers.map(d => (
-                        <span key={d} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm border ${
+                        <span key={d} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shadow-sm border ${
                           darkMode ? 'bg-slate-600 border-slate-500 text-slate-200' : 'bg-white border-slate-200'
                         }`}>
                           {d}
@@ -1076,7 +1091,7 @@ export default function App() {
                     </div>
                   </div>
                   {/* Bahagian Kenderaan */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                       Senarai Kenderaan
                     </label>
@@ -1086,22 +1101,22 @@ export default function App() {
                         value={newVehicleAdmin}
                         onChange={(e) => setNewVehicleAdmin(e.target.value)}
                         placeholder="Contoh: Toyota Camry (ABC 1234)"
-                        className={`flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
+                        className={`flex-1 px-4 py-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-[#f39200] outline-none ${
                           darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
                         }`}
                       />
                       <button
                         onClick={handleAddVehicleAdmin}
-                        className="px-4 py-2 bg-[#f39200] text-white rounded-xl text-sm font-bold hover:bg-[#e08600] active:scale-95 transition-all"
+                        className="px-5 py-2.5 bg-[#f39200] text-white rounded-xl text-sm font-bold hover:bg-[#e08600] active:scale-95 transition-all shadow-sm"
                       >
                         Tambah
                       </button>
                     </div>
-                    <div className={`flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl border ${
+                    <div className={`flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-3 rounded-xl border ${
                       darkMode ? 'bg-slate-700/30 border-slate-600' : 'bg-slate-50 border-slate-200'
                     }`}>
                       {vehicles.map(v => (
-                        <span key={v} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm border ${
+                        <span key={v} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shadow-sm border ${
                           darkMode ? 'bg-slate-600 border-slate-500 text-slate-200' : 'bg-white border-slate-200'
                         }`}>
                           {v}
@@ -1116,16 +1131,16 @@ export default function App() {
               </div>
 
               {/* --- STATISTIK BULANAN --- */}
-              <div className={`p-5 rounded-2xl shadow-sm border ${
+              <div className={`p-6 rounded-2xl shadow-md border ${
                 darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
               }`}>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                   <h3 className={`text-sm font-bold flex items-center gap-2 ${
                     darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
                   }`}>
-                    <BarChart3 className="w-4 h-4" /> Statistik Penggunaan Mengikut Bulan
+                    <BarChart3 className="w-5 h-5" /> Statistik Penggunaan Mengikut Bulan
                   </h3>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-2">
                       <label className={`text-xs font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                         Tahun:
@@ -1250,13 +1265,13 @@ export default function App() {
               </div>
 
               {/* --- STATISTIK MENGIKUT KENDERAAN --- */}
-              <div className={`p-5 rounded-2xl shadow-sm border ${
+              <div className={`p-6 rounded-2xl shadow-md border ${
                 darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
               }`}>
                 <h3 className={`text-sm font-bold flex items-center gap-2 mb-4 ${
                   darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'
                 }`}>
-                  <Truck className="w-4 h-4" /> Statistik Mengikut Kenderaan (Tahun {statsTahun})
+                  <Truck className="w-5 h-5" /> Statistik Mengikut Kenderaan (Tahun {statsTahun})
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                    {Object.keys(vehicleStats).map((v) => {
@@ -1309,19 +1324,19 @@ export default function App() {
               </div>
 
               {/* --- PENAPIS & CARIAN LENGKAP DENGAN BUTANG RESET --- */}
-              <div className={`p-5 rounded-2xl shadow-sm border space-y-4 ${
+              <div className={`p-6 rounded-2xl shadow-md border ${
                 darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
               }`}>
-                <div className={`flex items-center justify-between mb-2 ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
+                <div className={`flex items-center justify-between mb-4 ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
                   <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4" />
+                    <Filter className="w-5 h-5" />
                     <h3 className={`text-sm font-bold ${darkMode ? 'text-[#f39200]' : 'text-[#4A154B]'}`}>
                       Tapisan & Carian Sistem
                     </h3>
                   </div>
                   <button
                     onClick={resetFilters}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       darkMode 
                         ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' 
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1331,7 +1346,7 @@ export default function App() {
                   </button>
                 </div>
                 
-                <div className="relative">
+                <div className="relative mb-3">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Search className={`w-5 h-5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
                   </div>
@@ -1403,7 +1418,7 @@ export default function App() {
               </div>
 
               {/* --- SENARAI REKOD DENGAN BUTANG EDIT & DELETE --- */}
-              <div className={`rounded-2xl shadow-sm border overflow-hidden ${
+              <div className={`rounded-2xl shadow-md border overflow-hidden ${
                 darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 backdrop-blur-xl border-white/60'
               }`}>
                 <div className="overflow-x-auto hidden sm:block">
@@ -1569,8 +1584,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* --- FOOTER --- */}
-      <footer className={`no-print w-full text-center pb-[90px] sm:pb-6 pt-5 px-4 mt-auto relative z-10 border-t ${
+      {/* --- FOOTER (tiada navigasi bawah) --- */}
+      <footer className={`no-print w-full text-center py-6 px-4 mt-auto relative z-10 border-t ${
         darkMode ? 'border-slate-700 bg-slate-900/50' : 'border-[#4A154B]/10 bg-gradient-to-b from-transparent to-[#4A154B]/5'
       }`}>
         <div className="flex flex-col items-center justify-center gap-3">
@@ -1597,55 +1612,15 @@ export default function App() {
         </div>
       </footer>
 
-      {/* --- DOCKED BOTTOM NAVIGATION (MOBILE) - KORPORAT MINIMALIS --- */}
-      <div className={`no-print fixed bottom-0 left-0 w-full z-50 sm:hidden border-t shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-5 pt-1 transition-colors duration-300 ${
-        darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-      }`}>
-        <div className="flex items-center justify-around h-14">
-          
-          <button 
-            onClick={() => setActiveTab('borang')}
-            className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 ${
-              activeTab === 'borang' 
-                ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
-                : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
-            }`}
-          >
-            {activeTab === 'borang' && (
-              <div className={`absolute top-[-4px] left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-b-full ${darkMode ? 'bg-[#f39200]' : 'bg-[#4A154B]'}`}></div>
-            )}
-            <FileText className={`w-[22px] h-[22px] mb-1 ${activeTab === 'borang' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-            <span className="text-[11px] font-bold tracking-wide">Borang</span>
-          </button>
-          
-          <button 
-            onClick={handleAdminClick}
-            className={`relative flex-1 flex flex-col items-center justify-center h-full transition-all duration-300 ${
-              activeTab === 'laporan' 
-                ? (darkMode ? 'text-[#f39200]' : 'text-[#4A154B]') 
-                : (darkMode ? 'text-slate-500 hover:text-slate-400' : 'text-slate-400 hover:text-slate-600')
-            }`}
-          >
-            {activeTab === 'laporan' && (
-              <div className={`absolute top-[-4px] left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-b-full ${darkMode ? 'bg-[#f39200]' : 'bg-[#4A154B]'}`}></div>
-            )}
-            <ShieldCheck className={`w-[22px] h-[22px] mb-1 ${activeTab === 'laporan' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-            <span className="text-[11px] font-bold tracking-wide">Admin</span>
-          </button>
-          
-        </div>
-      </div>
-
       {/* --- MODAL LOGIN ADMIN (Macam dalam video) --- */}
       {showLoginModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`relative w-full max-w-[320px] rounded-[24px] p-6 shadow-2xl ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
             
-            {/* Header Modal */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Lock className={`w-5 h-5 ${darkMode ? 'text-cyan-400' : 'text-teal-600'}`} />
-                <h3 className={`text-[17px] font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Akses Admin [cite: 6]</h3>
+                <h3 className={`text-[17px] font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Akses Admin</h3>
               </div>
               <button 
                 onClick={() => setShowLoginModal(false)} 
@@ -1657,7 +1632,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Form Login */}
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               
               {loginError && (
@@ -1711,7 +1685,7 @@ export default function App() {
                 type="submit" 
                 className="w-full mt-2 py-3.5 rounded-xl text-white font-bold text-[15px] bg-gradient-to-r from-blue-600 to-cyan-400 hover:opacity-90 active:scale-95 transition-all shadow-md"
               >
-                Sahkan Log Masuk [cite: 6]
+                Sahkan Log Masuk
               </button>
             </form>
           </div>
